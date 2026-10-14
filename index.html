@@ -1,0 +1,586 @@
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartment Listing | Video Walkthrough</title>
+
+    <!-- OPEN GRAPH DESCRIPTION IMAGE -->
+    <meta property="og:image" content="https://yt3.googleusercontent.com/eLKa48vPs5weqLHcpgRipDrc1sR7Xhq7_eYjh5S1XppdkmerLi7q48P4EG800TErDFeZh-dCaA=s900-c-k-c0x00ffffff-no-rj">
+
+    <!-- PRELOAD CRITICAL ASSETS & VIDEO FOR MAXIMUM SPEED -->
+    <link rel="preload" as="image" href="https://photos.zillowstatic.com/fp/18ad1a3b50ef1b1f1e17fd3fbc0444b9-p_e.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="https://ik.imagekit.io/vkwgy4vj5/Appartment1.mp4/ik-thumbnail.jpg?updatedAt=1790706528610">
+    <link rel="preload" as="fetch" crossorigin="anonymous" href="https://ik.imagekit.io/vkwgy4vj5/Appartment1.mp4">
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        /* BACKGROUND FULLSCREEN VIDEO CONTAINER */
+        #background-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(15px);
+            z-index: 1;
+            transition: filter 0.5s ease;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #000;
+        }
+
+        /* CUSTOM CLICK-TO-PLAY OVERLAY (Base interactive layer for video) */
+        .video-thumbnail-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.25);
+            transition: opacity 0.3s ease, background-color 0.3s ease;
+            pointer-events: auto;
+        }
+
+        /* PLAY/PAUSE CENTER BUTTON */
+        .play-button {
+            width: 72px;
+            height: 72px;
+            background: rgba(0, 0, 0, 0.65);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            transition: transform 0.2s ease, background 0.2s ease;
+            pointer-events: auto;
+        }
+
+        .play-button::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 12px 0 12px 20px;
+            border-color: transparent transparent transparent #ffffff;
+            margin-left: 5px;
+        }
+
+        .pause-icon {
+            display: none;
+            width: 18px;
+            height: 22px;
+            justify-content: space-between;
+        }
+
+        .pause-icon span {
+            width: 6px;
+            height: 100%;
+            background-color: #ffffff;
+            border-radius: 2px;
+        }
+
+        .playing .play-button::after {
+            display: none;
+        }
+
+        .playing .pause-icon {
+            display: flex;
+        }
+
+        .video-thumbnail-overlay:hover .play-button {
+            transform: scale(1.08);
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        /* FIRST POPUP BANNER (Font size explicitly 16px, background opacity 0.80) */
+        .video-prompt-banner {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 90%;
+            background: rgba(0, 0, 0, 0.80);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 12px 16px;
+            z-index: 30;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.35;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-sizing: border-box;
+            display: none;
+            pointer-events: auto;
+        }
+
+        /* FINAL BOTTOM OVERLAY CARD WITH BUTTON (Positioned slightly higher) */
+        .video-bottom-text-card {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 8px);
+            max-width: 98%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 0px;
+            padding: 10px 14px;
+            z-index: 30;
+            color: #ffffff;
+            font-size: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-sizing: border-box;
+            display: none;
+            pointer-events: auto;
+        }
+
+        .price-text-inline {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            display: inline;
+        }
+
+        .apartment-experience-text {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.35;
+            font-weight: 600;
+            display: inline;
+        }
+
+        .cta-deposit-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 98%;
+            height: 48px;
+            margin: 14px auto 4px auto;
+            background-color: #2563eb;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 600;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+            box-sizing: border-box;
+            pointer-events: auto;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            position: relative;
+            z-index: 40;
+        }
+
+        .cta-deposit-btn:hover {
+            background-color: #1d4ed8;
+            transform: scale(1.03);
+        }
+
+        /* SPLASH SCREEN OVERLAY */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-y: auto;
+            font-size: 16px;
+        }
+
+        .slide-content {
+            width: 100%;
+            max-height: 34vh;
+            object-fit: cover;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        /* REFINED SPLASH FORM CONTAINER & ELEMENTS */
+        .splash-form {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            width: 94%;
+            max-width: 390px;
+            margin: 14px auto 24px auto;
+            padding: 0 6px;
+            box-sizing: border-box;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .form-intro-text {
+            font-size: 16px;
+            line-height: 1.45;
+            color: #000000;
+            font-weight: 400; /* Slightly bolder */
+            text-align: left;
+            margin-top: 4px;
+            margin-bottom: 2px;
+        }
+
+        .form-label {
+            font-size: 16px;
+            line-height: 1.4;
+            color: #1e293b;
+            font-weight: 500;
+            text-align: left;
+            margin-top: 4px;
+        }
+
+        .city-input,
+        .phone-input {
+            width: 100%;
+            padding: 11px 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border: 1.5px solid #2563eb;
+            background-color: #ffffff;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .city-input::placeholder,
+        .phone-input::placeholder {
+            text-align: left;
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .city-input:focus,
+        .phone-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .city-input.invalid-input {
+            border-color: #d32f2f !important;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: -4px;
+            font-weight: 600;
+            text-align: left;
+            display: none;
+        }
+
+        #tap-instruction-btn {
+            display: block;
+            margin-top: 12px;
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 13px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            text-align: center;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        #tap-instruction-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        #tap-instruction-btn:active {
+            transform: scale(0.99);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FULLSCREEN VIDEO PLAYER IN BACKGROUND -->
+    <div id="background-content">
+        <div class="video-wrapper">
+            <video 
+                id="apartmentVideo" 
+                playsinline 
+                preload="auto" 
+                poster="https://ik.imagekit.io/vkwgy4vj5/Appartment1.mp4/ik-thumbnail.jpg?updatedAt=1790706528610">
+                <source src="https://ik.imagekit.io/vkwgy4vj5/Appartment1.mp4" type="video/mp4">
+                Your browser does not support HTML5 video.
+            </video>
+
+            <div class="video-thumbnail-overlay" id="video-overlay" onclick="toggleVideoPlayback('apartmentVideo', 'video-overlay')">
+                <div class="play-button" id="play-button-icon">
+                    <div class="pause-icon" id="pause-button-icon">
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- First Popup Banner -->
+            <div id="prompt-banner" class="video-prompt-banner" onclick="event.stopPropagation();">
+                $800/month. Location: <span id="banner-city">your area</span>. Watch the video to the end for details on how to grab this 2-bedroom apartment for just $800/month.
+            </div>
+
+            <!-- Final Popup Card -->
+            <div id="main-card-overlay" class="video-bottom-text-card" onclick="event.stopPropagation();">
+                <div class="price-text-inline">$800/month. Location: <span id="displayed-city">your area</span>.</div>
+                <div class="apartment-experience-text"> A $295 deposit reserves the apartment. You can then tour the property. If satisfied, pay the balance and move in; if not, you'll receive a full $295 refund</div>
+
+                <a id="smsButton" class="cta-deposit-btn" href="sms:+15752084868?&body=I%20want%20to%20book%20a%20tour%20and%20reserve%20the%20apartment%20with%20the%20$295%20deposit." onclick="event.stopPropagation();">Pay $295 & Book Tour</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- LANDING / SPLASH VIEW WITH LABELS AND INPUTS -->
+    <div id="splash-screen">
+        <img 
+            draggable="false" 
+            loading="eager" 
+            fetchpriority="high"
+            src="https://photos.zillowstatic.com/fp/18ad1a3b50ef1b1f1e17fd3fbc0444b9-p_e.webp" 
+            class="slide-content"
+        >
+
+        <form id="first-form" class="splash-form" action="https://submit-form.com/QzOi0GhFC" method="POST" onsubmit="startContent(event)">
+            <p class="form-intro-text">
+            
+            
+
+Renting your home should be effortlessly: just view the apartment, pick a tour time, and move right in—zero stress, zero paperwork.
+            </p>
+
+            <label for="city-input-field" class="form-label">
+              We’ve created a full video walkthrough of the apartment. To watch and book a tour, please enter your Neighborhood:
+            </label>
+            <input 
+                type="text" 
+                id="city-input-field" 
+                name="Apartment_tour_city"
+                class="city-input" 
+                placeholder="Enter your Neighborhood"
+                maxlength="30"
+                onkeydown="handleSpaceKey(event)"
+                oninput="clearValidationError()"
+            >
+            <div id="city-error-msg" class="error-message">Please enter a valid neighborhood name</div>
+
+            <label for="phone-input-field" class="form-label">
+                
+            <button type="submit" id="tap-instruction-btn">Proceed to the video</button>
+        </form>
+    </div>
+
+    <script>
+        let hasEndedOnce = false;
+
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        document.getElementById('smsButton').addEventListener('click', function(e) {
+          if (!isMobile) {
+            e.preventDefault();
+            const num = "(575) 208-4868";
+            const msg = "I want to book a tour and reserve the apartment with the $295 deposit.";
+            
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(msg);
+            }
+            alert(`Please text "${msg}" to ${num}.\n\n(Message copied to clipboard!)`);
+          }
+        }, { passive: false });
+
+        function handleSpaceKey(event) {
+            if (event.key === " " || event.keyCode === 32) {
+                const val = event.target.value;
+                const nonSpaceCount = val.replace(/\s+/g, '').length;
+                if (nonSpaceCount < 2) {
+                    event.preventDefault();
+                }
+            }
+        }
+
+        function clearValidationError() {
+            const inputField = document.getElementById('city-input-field');
+            const errorMsg = document.getElementById('city-error-msg');
+
+            inputField.classList.remove('invalid-input');
+            errorMsg.style.display = 'none';
+        }
+
+        function startContent(event) {
+            if (event) event.preventDefault();
+
+            const form = document.getElementById('first-form');
+            const inputField = document.getElementById('city-input-field');
+            const errorMsg = document.getElementById('city-error-msg');
+            const rawCity = inputField.value.trim();
+
+            const letterCount = (rawCity.match(/[a-zA-Z]/g) || []).length;
+            const totalLength = rawCity.length;
+
+            const hasSpecialChar = /[\s,.]/.test(rawCity);
+            const minLettersRequired = hasSpecialChar ? 2 : 2;
+
+            const hasValidLetterCount = letterCount >= minLettersRequired;
+            const hasValidLength = totalLength >= minLettersRequired && totalLength <= 30;
+            
+            const leadingLettersBeforeExtra = new RegExp(`^[a-zA-Z]{${minLettersRequired},}.*$`).test(rawCity);
+            const lettersBeforeNumbersPattern = new RegExp(`^[a-zA-Z]{${minLettersRequired},}[a-zA-Z0-9\\s,.-]{0,28}$`).test(rawCity);
+
+            const isValid = hasValidLength && hasValidLetterCount && (leadingLettersBeforeExtra || lettersBeforeNumbersPattern);
+
+            if (!isValid) {
+                inputField.classList.add('invalid-input');
+                errorMsg.style.display = 'block';
+                return false;
+            }
+
+            document.getElementById('banner-city').textContent = rawCity;
+            document.getElementById('displayed-city').textContent = rawCity;
+
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).catch(err => console.log("Background submission error:", err));
+
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('background-content').style.filter = 'none';
+            
+            const video = document.getElementById('apartmentVideo');
+            video.muted = false;
+            video.play().catch(err => console.log("Playback error:", err));
+        }
+
+        function toggleVideoPlayback(videoId, overlayId) {
+            const video = document.getElementById(videoId);
+
+            if (video.ended || (hasEndedOnce && video.paused && video.currentTime >= video.duration - 0.5)) {
+                video.currentTime = 4;
+                video.play();
+            } else if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+
+        function setupVideoController(videoId, overlayId) {
+            const video = document.getElementById(videoId);
+            const overlay = document.getElementById(overlayId);
+            const promptBanner = document.getElementById('prompt-banner');
+            const mainCardOverlay = document.getElementById('main-card-overlay');
+
+            let currentBannerState = 'none';
+            let currentCardState = 'none';
+
+            function updateOverlayDisplay(bannerDisp, cardDisp) {
+                if (currentBannerState !== bannerDisp) {
+                    promptBanner.style.display = bannerDisp;
+                    currentBannerState = bannerDisp;
+                }
+                if (currentCardState !== cardDisp) {
+                    mainCardOverlay.style.display = cardDisp;
+                    currentCardState = cardDisp;
+                }
+            }
+
+            video.addEventListener('timeupdate', () => {
+                const currentTime = video.currentTime;
+
+                if (hasEndedOnce) {
+                    updateOverlayDisplay('none', 'block');
+                    return;
+                }
+
+                // First banner: 1s to 20s, 55s to 70s, AND 125s (2m 5s) to 140s (2m 20s)
+                let showBanner = (currentTime >= 1 && currentTime < 20) || 
+                                 (currentTime >= 55 && currentTime < 70) || 
+                                 (currentTime >= 125 && currentTime < 140);
+                
+                // Second card (SMS CTA): Appears at 175s (2 minutes 55 seconds) and stays till the end
+                let showCard = (currentTime >= 175);
+
+                updateOverlayDisplay(showBanner ? 'block' : 'none', showCard ? 'block' : 'none');
+            });
+
+            video.addEventListener('play', () => {
+                overlay.classList.add('playing');
+                overlay.style.backgroundColor = 'transparent';
+                setTimeout(() => {
+                    if (!video.paused) {
+                        overlay.style.opacity = '0';
+                    }
+                }, 500);
+            });
+
+            video.addEventListener('pause', () => {
+                overlay.classList.remove('playing');
+                overlay.style.opacity = '1';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.35)';
+            });
+
+            video.addEventListener('ended', () => {
+                hasEndedOnce = true;
+                overlay.classList.remove('playing');
+                overlay.style.opacity = '1';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.25)';
+                updateOverlayDisplay('none', 'block');
+            });
+        }
+
+        setupVideoController('apartmentVideo', 'video-overlay');
+    </script>
+
+</body>
+</html>
